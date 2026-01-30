@@ -1,12 +1,11 @@
-/* --- 設定：画像のパスなど --- */
 const CONFIG = {
-    // 枠画像のパス（全員共通）
     framePath: "assets/images/card_frame.png",
-    // イラストがあるフォルダ
     artPath: "assets/images/"
 };
 
-/* --- 1. カードの設計図（クラス） --- */
+// ==========================================
+// 1. 基本クラス定義
+// ==========================================
 class Card {
     constructor(id, name, cost, artImage, description, effect) {
         this.id = id;
@@ -14,17 +13,15 @@ class Card {
         this.cost = cost;
         this.artImage = artImage;
         this.description = description;
-        this.effect = effect; // クリックした時の効果（後で使います）
+        this.effect = effect;
     }
 
-    // HTMLを生成する工場メソッド
+    // HTML要素を生成して返す
     createHTML() {
         const cardDiv = document.createElement('div');
         cardDiv.className = 'card';
-        // クリックしたらログを出す（動作確認用）
-        cardDiv.onclick = () => console.log(`カード使用: ${this.name}`);
-
-        // あの「黄金比」のHTML構造をそのまま埋め込む
+        // クリックイベントはBattleManager側で設定するため、ここでは枠組みだけ作る
+        
         cardDiv.innerHTML = `
             <img src="${CONFIG.artPath + this.artImage}" class="card-art">
             <img src="${CONFIG.framePath}" class="card-frame-img">
@@ -38,9 +35,20 @@ class Card {
     }
 }
 
-/* === js/main.js の Cardクラス定義より下を書き換え === */
+// ==========================================
+// 2. カードデータベース
+// ==========================================
+const cardDatabase = [
+    new Card(1, "ストライク", 1, "art_strike.png", "敵1体に<br>6ダメージを与える"),
+    new Card(2, "防御", 1, "art_shield.png", "ブロックを<br>5得る"),
+    new Card(3, "ポーション", 0, "art_potion.png", "HPを<br>10回復する"),
+];
 
-// ユーティリティ: 配列をシャッフルする (Fisher-Yates algorithm)
+// ==========================================
+// 3. システムロジック (Battle Manager)
+// ==========================================
+
+// 配列シャッフル関数 (Fisher-Yates)
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -49,78 +57,77 @@ function shuffle(array) {
     return array;
 }
 
-// バトル状態管理クラス
 class BattleManager {
     constructor(startingDeck) {
-        this.deck = [...startingDeck]; // デッキ原本（コピー）
+        this.deck = [...startingDeck]; // デッキ原本
         this.drawPile = [];            // 山札
         this.hand = [];                // 手札
         this.discardPile = [];         // 捨て札
     }
 
-    // 戦闘開始（初期化）
+    // 戦闘開始
     initBattle() {
-        // 山札を作成してシャッフル
+        // 山札を作ってシャッフル
         this.drawPile = [...this.deck];
         shuffle(this.drawPile);
         this.hand = [];
         this.discardPile = [];
         
-        console.log("バトル開始: 山札シャッフル完了");
-        this.updateUI();
+        console.log("バトル開始！");
         this.startTurn();
     }
 
-    // ターン開始処理
+    // ターン開始
     startTurn() {
         console.log("--- ターン開始 ---");
-        this.drawCard(5); // 定番の5枚ドロー
+        // 5枚引く
+        this.drawCard(5);
     }
 
-    // カードを引く処理（リシャッフル機能付き）
+    // カードドロー処理 (リシャッフル機能付き)
     drawCard(count) {
         for (let i = 0; i < count; i++) {
             if (this.drawPile.length === 0) {
                 if (this.discardPile.length === 0) {
-                    console.log("引くカードがありません！");
+                    console.log("山札も捨て札もありません");
                     break;
                 }
-                // 山札が尽きたら捨て札をリシャッフルして山札にする
-                console.log("山札再構築（リシャッフル）");
+                // 捨て札を山札に戻してシャッフル
+                console.log("♻️ リシャッフル発生");
                 this.drawPile = [...this.discardPile];
                 shuffle(this.drawPile);
                 this.discardPile = [];
             }
-            // 山札から手札へ移動
+            // 山札の一番上を手札へ
             const card = this.drawPile.pop();
             this.hand.push(card);
         }
         this.updateUI();
     }
 
-    // カードを使用する処理
+    // カード使用処理
     playCard(index) {
         const card = this.hand[index];
+        console.log(`カード使用: ${card.name}`);
         
-        console.log(`カード使用: ${card.name} (効果: ${card.effect})`);
-        
-        // TODO: ここに実際のダメージ処理やブロック処理が入ります
-        
-        // 手札から削除し、捨て札へ
+        // TODO: ここにダメージ処理やコスト消費を入れる
+
+        // 手札から抜いて捨て札へ
         this.hand.splice(index, 1);
         this.discardPile.push(card);
         
         this.updateUI();
     }
 
-    // 手札を全て捨てる（ターン終了時など）
+    // 手札をすべて捨てる
     discardHand() {
+        console.log("手札をすべて捨て札へ送ります");
         this.discardPile.push(...this.hand);
         this.hand = [];
         this.updateUI();
     }
 
-    // UI更新（再描画）
+    // 画面描画
     updateUI() {
         // 1. カウンター更新
         document.getElementById('draw-pile-count').innerText = `山札: ${this.drawPile.length}`;
@@ -132,26 +139,22 @@ class BattleManager {
 
         this.hand.forEach((card, index) => {
             const cardEl = card.createHTML();
-            
-            // クリックイベントを上書きして、indexを渡せるようにする
+            // クリック時に playCard(index) を呼ぶ
             cardEl.onclick = () => {
-                this.playCard(index);
+                this.battleManagerInstance.playCard(index);
             };
-
-            // アニメーション用のクラス付与などはここで行う
             container.appendChild(cardEl);
         });
     }
 }
 
-// グローバル変数として管理
-let battleManager;
+// ==========================================
+// 4. ゲーム初期化・グローバル関数
+// ==========================================
+let battleManager; // グローバル変数
 
-// ゲーム初期化
 function initGame() {
-    // デッキ構築（仮：ストライク3, 防御3, ポーション1）
-    // ※cardDatabase[0]などを参照してインスタンスをコピーする必要がありますが
-    // 簡易的に参照渡しでリストを作ります
+    // 仮のデッキを作成（ストライクx3, 防御x3, ポーションx1）
     const myDeck = [
         cardDatabase[0], cardDatabase[0], cardDatabase[0],
         cardDatabase[1], cardDatabase[1], cardDatabase[1],
@@ -159,16 +162,22 @@ function initGame() {
     ];
 
     battleManager = new BattleManager(myDeck);
+    
+    // イベントハンドラ内でthisがズレないように参照を持たせる（簡易的な解決策）
+    battleManager.battleManagerInstance = battleManager;
+    
     battleManager.initBattle();
 }
 
-// HTML側のボタンから呼ぶ用
+// HTMLのボタンから呼ばれる関数
 function endTurn() {
+    if(!battleManager) return;
     battleManager.discardHand();
-    // 次のターンへ（簡易実装）
+    
+    // 少し待ってから次のターン開始（演出用ウェイト）
     setTimeout(() => {
         battleManager.startTurn();
-    }, 500);
+    }, 400);
 }
 
 window.onload = initGame;
