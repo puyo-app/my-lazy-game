@@ -6,32 +6,59 @@
     <title>俺のゲーム</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #222;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: sans-serif;
-            overflow: hidden; /* スクロール禁止 */
+            margin: 0; padding: 0; background-color: #222; color: white;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 100vh; font-family: sans-serif; overflow: hidden;
         }
-        #game-container {
-            text-align: center;
-        }
-        button {
-            font-size: 20px;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
+        input { font-size: 18px; padding: 10px; margin: 10px; width: 80%; }
+        button { font-size: 20px; padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px; }
+        #status { margin-top: 20px; color: #aaa; }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <h1>起動成功！</h1>
-        <p>ここから伝説が始まる</p>
-        <button onclick="alert('スプシ連携はまだだよ')">TAP ME</button>
-    </div>
+    <h1>スコア送信テスト</h1>
+    
+    <input type="text" id="nameInput" placeholder="名前を入れてね">
+    <input type="number" id="scoreInput" placeholder="スコア (例: 100)">
+    
+    <button onclick="sendData()">送信する</button>
+    <p id="status">待機中...</p>
+
+    <script>
+        // ↓↓↓ ここにさっきのURLを貼る！ ↓↓↓
+        const GAS_URL = "https://script.google.com/macros/s/AKfycby05yz_QzR_FCBQQFA1rTy3HrIT5tze4z5pGGgpE1_Hv_UQs9Y2AB9Spc8smepTjkkWiw/exec"; 
+
+        function sendData() {
+            const name = document.getElementById('nameInput').value;
+            const score = document.getElementById('scoreInput').value;
+            const status = document.getElementById('status');
+
+            if(!name || !score) {
+                alert("名前とスコアを入れて！");
+                return;
+            }
+
+            status.innerText = "送信中...";
+
+            // データを送る処理
+            fetch(GAS_URL, {
+                method: "POST",
+                mode: "no-cors", // これが重要。CORSエラーを無視して送りつける設定
+                headers: {
+                    "Content-Type": "text/plain" // GASはこれを好む
+                },
+                body: JSON.stringify({ name: name, score: score })
+            })
+            .then(() => {
+                // no-corsモードだと成功の返事は読めないが、エラーが出なければ成功とみなす
+                status.innerText = "送信完了！スプシを見てみて";
+                document.getElementById('nameInput').value = "";
+                document.getElementById('scoreInput').value = "";
+            })
+            .catch(error => {
+                status.innerText = "エラー発生: " + error;
+            });
+        }
+    </script>
 </body>
 </html>
