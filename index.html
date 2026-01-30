@@ -17,66 +17,86 @@
     position: relative;
     width: 240px;
     height: 360px;
-    background-color: #000; /* 万が一の隙間用 */
-    border-radius: 15px; /* 枠の形状に合わせて調整 */
+    background-color: #000;
+    border-radius: 12px; /* 角丸を少し控えめに */
     box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-    /* 重要：スマホで長押し選択されないようにする */
     user-select: none; -webkit-user-select: none;
+    overflow: hidden; /* はみ出し厳禁 */
   }
 
   /* --- レイヤー1：イラスト（一番下） --- */
   .card-art {
     position: absolute;
-    /* イラストを「少し上寄り」に配置して、窓から確実に見えるようにする */
-    top: 5%; 
-    left: 5%;
-    width: 90%; 
-    height: 60%; /* カードの上半分くらいをカバーできればOK */
+    /* 窓の位置に合わせてイラストの表示位置を調整 */
+    top: 40px;  /* 上から少し下げて窓に合わせる */
+    left: 20px; /* 左から少し空ける */
+    width: 200px; /* 窓の幅に合わせる */
+    height: 180px; /* 窓の高さに合わせる */
     object-fit: cover;
-    z-index: 1; /* フレームの下 */
+    z-index: 1;
   }
 
   /* --- レイヤー2：枠画像（真ん中） --- */
-  /* ここが「蓋」の役割をします。イラスト以外の部分は不透明な画像を使います */
   .card-frame-img {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    object-fit: fill;
-    z-index: 2; /* イラストの上 */
+    object-fit: fill; /* 強制引き伸ばし */
+    z-index: 2;
     pointer-events: none;
   }
 
   /* --- レイヤー3：UIテキスト（一番上） --- */
   .card-ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; }
 
-  /* コスト：丸枠の真ん中に来るように微調整 */
+  /* ★修正：コスト（左上の丸） */
   .card-cost {
     position: absolute;
-    top: 0px; left: 0px; /* 枠画像の丸の位置に合わせて調整 */
-    width: 85px; height: 85px; /* 丸枠より少し大きめに判定を取ってセンター合わせ */
+    /* 丸枠の位置に合わせてガッツリ左上に寄せる */
+    top: 12px; 
+    left: 10px;
+    /* 丸のサイズに合わせる */
+    width: 60px; 
+    height: 60px; 
     display: flex; justify-content: center; align-items: center;
-    font-size: 38px; font-weight: bold; color: #FFD700;
-    text-shadow: 3px 3px 0 #000; /* 視認性アップ */
+    /* 数字のデザイン */
+    font-size: 36px; font-weight: bold; color: #FFD700;
+    text-shadow: 2px 2px 0 #000; /* くっきりさせる黒縁 */
+    /* デバッグ用：位置確認したければ下の行のコメントアウトを外す */
+    /* border: 1px solid red; */
   }
   
-  /* タイトル：リボンの中央 */
+  /* ★修正：タイトル（中央リボン） */
   .card-title {
     position: absolute;
-    top: 58%; /* 上から58%の位置（リボンの位置に合わせて調整） */
-    left: 10%; width: 80%; /* 左右に少し余白を持たせる */
-    text-align: center; font-size: 16px; font-weight: bold; color: #3d2e1e;
+    /* リボンの高さに合わせる */
+    top: 212px; 
+    /* リボンの幅と開始位置 */
+    left: 40px; 
+    width: 160px; 
+    text-align: center; 
+    font-size: 15px; font-weight: bold; 
+    /* 白いリボンの上なので、濃い茶色にする */
+    color: #3d2e1e; 
+    /* 1行で収まらない時は「...」にする */
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+    /* border: 1px solid red; */
   }
 
-  /* 説明文：下部のテキストエリア */
+  /* ★修正：説明文（下の四角） */
   .card-desc {
     position: absolute;
-    bottom: 8%; /* 下から8%の位置 */
-    left: 10%; width: 80%; height: 20%;
+    /* 下枠の位置に合わせる */
+    top: 255px;
+    left: 35px; 
+    width: 170px; 
+    height: 85px;
+    /* 上下左右中央揃え */
     display: flex; justify-content: center; align-items: center; text-align: center;
-    font-size: 13px; color: #3d2e1e; line-height: 1.4; font-weight: bold;
+    font-size: 13px; 
+    color: #3d2e1e; /* 濃い茶色 */
+    line-height: 1.5; font-weight: bold;
+    /* border: 1px solid red; */
   }
-
 </style>
 </head>
 <body>
