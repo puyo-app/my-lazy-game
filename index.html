@@ -8,114 +8,80 @@
   /* 全体の設定 */
   body {
     margin: 0; padding: 20px; background-color: #111; color: white;
-    display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;
     font-family: 'Georgia', serif;
+    /* 画面中央寄せなどはハンドコンテナに任せる */
+    display: flex; justify-content: center; 
   }
 
-  /* --- カードコンテナ --- */
+  /* カードを並べるエリア（手札） */
+  #hand-container {
+    display: flex; 
+    flex-wrap: wrap; 
+    justify-content: center; 
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  /* --- 以下、あなたが苦労して調整した黄金比CSS --- */
   .card {
-    position: relative; /* これが基準点。絶対に必要 */
+    position: relative;
     width: 240px;
     height: 360px;
     background-color: #000;
     border-radius: 12px;
     box-shadow: 0 10px 20px rgba(0,0,0,0.5);
     user-select: none; -webkit-user-select: none;
-    overflow: hidden; /* はみ出しを隠す。これも必須 */
+    overflow: hidden;
+    cursor: pointer; /* クリックできる感 */
+    transition: transform 0.1s; /* 押したときのアニメーション用 */
   }
 
-  /* --- レイヤー1：イラスト（一番下） --- */
+  /* ちょっとした遊び心：押すと凹む */
+  .card:active { transform: scale(0.95); }
+
   .card-art {
     position: absolute;
-    /* ★修正ポイント：上から30px押し下げる */
-    top: 30px;  
-    /* 左右の位置調整 */
-    left: 22px; 
-    /* 窓のサイズに合わせて調整 */
-    width: 196px; 
-    height: 170px; 
-    object-fit: cover;
-    z-index: 1;
+    top: 30px; left: 22px; width: 196px; height: 170px; 
+    object-fit: cover; z-index: 1;
   }
 
-  /* --- レイヤー2：枠画像（真ん中） --- */
   .card-frame-img {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    object-fit: fill;
-    z-index: 2;
-    pointer-events: none;
+    object-fit: fill; z-index: 2; pointer-events: none;
   }
 
-  /* --- レイヤー3：UIテキスト（一番上） --- */
   .card-ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; }
 
-  /* ★修正ポイント：コスト（左上の丸） */
   .card-cost {
     position: absolute;
-    /* ★もっと左上に寄せる */
-    top: 0px; 
-    left: 5px;
-    width: 70px; 
-    height: 70px; 
+    top: 0px; left: 5px; width: 70px; height: 70px; 
     display: flex; justify-content: center; align-items: center;
     font-size: 36px; font-weight: bold; color: #FFD700;
     text-shadow: 2px 2px 0 #000;
-    /* border: 1px solid red; を有効にすると位置がわかります */
   }
   
-  /* ★修正ポイント：タイトル（中央リボン） */
   .card-title {
     position: absolute;
-    top: 215px; /* リボンの位置 */
-    left: 40px; width: 160px; 
-    text-align: center; 
-    font-size: 15px; font-weight: bold; 
-    color: #3d2e1e; /* 濃い茶色 */
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+    top: 215px; left: 40px; width: 160px; 
+    text-align: center; font-size: 15px; font-weight: bold; 
+    color: #3d2e1e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
   }
 
-  /* 説明文（下の四角） */
   .card-desc {
     position: absolute;
     top: 235px; left: 35px; width: 170px; height: 85px;
     display: flex; justify-content: center; align-items: center; text-align: center;
     font-size: 13px; color: #3d2e1e; line-height: 1.5; font-weight: bold;
   }
-
 </style>
 </head>
 <body>
 
-  <div class="card">
-    <img src="assets/images/art_strike.png" class="card-art">
-    <img src="assets/images/card_frame.png" class="card-frame-img">
-    <div class="card-ui">
-      <div class="card-cost">1</div>
-      <div class="card-title">ストライク</div>
-      <div class="card-desc">敵1体に<br>6ダメージを与える</div>
-    </div>
-  </div>
+  <div id="hand-container"></div>
 
-  <div class="card">
-    <img src="assets/images/art_shield.png" class="card-art">
-    <img src="assets/images/card_frame.png" class="card-frame-img">
-    <div class="card-ui">
-      <div class="card-cost">1</div>
-      <div class="card-title">防御</div>
-      <div class="card-desc">ブロックを<br>5得る</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <img src="assets/images/art_potion.png" class="card-art">
-    <img src="assets/images/card_frame.png" class="card-frame-img">
-    <div class="card-ui">
-      <div class="card-cost">0</div>
-      <div class="card-title">ポーション</div>
-      <div class="card-desc">HPを<br>10回復する</div>
-    </div>
-  </div>
+  <script src="js/main.js"></script>
 
 </body>
 </html>
