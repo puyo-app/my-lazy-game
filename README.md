@@ -1,29 +1,57 @@
-# My Lazy Game Project
+# My Lazy Game Project 🎮
 
-スマホ特化のWebブラウザゲーム開発プロジェクト。
-GitHub Pages + Google Sheets (GAS) を使ったサーバーレス・爆速開発構成。
-
-## 📱 開発方針
-- **ターゲット:** Android / iOS (スマホブラウザ)
-- **技術:** HTML5, CSS3, Vanilla JavaScript (フレームワークなし)
-- **DB:** Google Sheets + Google Apps Script (GAS)
-- **エディタ:** GitHub Web Editor (`.`)
-- **デプロイ:** GitHub Pages (mainブランチ同期)
+スマホ特化のローグライクデッキビルドゲーム開発。
+「Geminiで素材生成」+「GitHub Pagesで爆速デプロイ」+「Vanilla JS」の構成。
 
 ## 🚀 現在の状況 (Status)
-- [x] リポジトリ作成 & GitHub Pages 公開設定
-- [x] スマホ用ビューポート設定 (`user-scalable=no`)
-- [x] Google Sheets + GAS の連携環境構築 (POST受信)
-- [x] `index.html` からのデータ送信・保存テスト成功 (疎通確認済み)
+- [x] **カードデザインの完全なテンプレート化**（フレーム・絵・テキストの合成成功）
+- [x] **JavaScriptによる動的生成**（`main.js` のデータ配列からHTMLを自動作成）
+- [x] **CSS黄金比の特定**（1px単位の座標調整済み）
+- [x] スマホ対応（Viewport設定、タップ時の凹みアニメーション）
+- [x] アセット管理（`assets/images/` に枠と絵を分離して保存）
 
-## 🛠 構成メモ
-- **index.html**: 現在はDB接続テスト用のUI。
-- **GAS (Backend)**: POSTリクエストを受け取り、JSONデータをパースしてシートに行追加する。
-  - **仕様:** `no-cors` モードで `fetch` し、`text/plain` としてJSONを送る。
-  - **保存データ:** 日時, 名前, スコア
+## 🎨 デザイン仕様書 (The Golden Ratio)
+**重要:** CSSで特定した「枠と絵が完璧にハマる座標」のメモ。
+レイアウトが崩れたらここに戻ること。
+
+| 要素 | CSSプロパティ (Top/Left/Size) | 備考 |
+| :--- | :--- | :--- |
+| **カード全体** | 240px × 360px | スマホで見やすいサイズ感 |
+| **イラスト (Art)** | `top: 30px`, `left: 22px` <br> `w: 196px`, `h: 170px` | 枠の下に敷く。はみ出し防止のため高さ制限あり。 |
+| **コスト (Cost)** | `top: 0px`, `left: 5px` | 左上の丸枠ギリギリまで寄せる設定。 |
+| **タイトル** | `top: 215px`, `left: 40px` | リボンの真ん中。 |
+| **説明文** | `top: 235px`, `left: 35px` | 下部のテキストボックス中央。 |
+
+## 🛠 技術・実装メモ
+
+### 1. レイヤー構造
+Geminiで生成した画像をCSSで重ねて表示する戦略を採用。
+- **z-index: 1 (奥):** イラスト (`.card-art`) - 四角い絵でOK
+- **z-index: 2 (中):** 枠 (`.card-frame-img`) - 中央を透過したPNG
+- **z-index: 3 (前):** テキスト (`.card-ui`) - HTMLで描画
+
+### 2. カードの追加方法
+`js/main.js` の `cardDatabase` 配列にデータを追加するだけで自動的に画面に並ぶ。
+
+    // 例
+    new Card(4, "強打", 2, "art_strike.png", "10ダメージと<br>弱体を与える"),
+
+## 📂 ディレクトリ構成
+
+    my-lazy-game/
+    ├── index.html       # エントリーポイント (JS読み込み・コンテナのみ)
+    ├── js/
+    │   └── main.js      # カードクラス定義・データ・生成ロジック
+    ├── assets/
+    │   └── images/
+    │       ├── card_frame.png  # 透過済みマスターフレーム
+    │       ├── art_strike.png
+    │       ├── art_shield.png
+    │       └── art_potion.png
+    └── README.md        # プロジェクトの記憶
 
 ## ✅ 次のステップ (TODO)
-- [ ] ゲームの企画・設計（ジャンル決定）
-- [ ] ゲーム画面の実装（Canvas等の描画処理）
-- [ ] ゲームループの作成
-- [ ] スコアランキング表示機能（GASからのデータ取得処理の追加）
+- [ ] **デッキシステムの構築**（山札・手札・捨て札の概念）
+- [ ] **シャッフル機能の実装**
+- [ ] **ターン制バトルのロジック**（エナジー消費、敵のHPなど）
+- [ ] スプレッドシートDBとの連携（ランキング/セーブ機能）
