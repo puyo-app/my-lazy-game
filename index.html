@@ -1,64 +1,109 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>俺のゲーム</title>
-    <style>
-        body {
-            margin: 0; padding: 0; background-color: #222; color: white;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            height: 100vh; font-family: sans-serif; overflow: hidden;
-        }
-        input { font-size: 18px; padding: 10px; margin: 10px; width: 80%; }
-        button { font-size: 20px; padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px; }
-        #status { margin-top: 20px; color: #aaa; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>俺のローグライク</title>
+<style>
+  /* 全体の設定：背景を暗くして雰囲気を出す */
+  body {
+    margin: 0; padding: 20px; background-color: #1a1a1a; color: white;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; /* カードを中央揃えで並べる */
+    font-family: 'Georgia', serif; /* ファンタジーっぽいフォント */
+  }
+
+  /* --- カードの基本構造（レイヤーシステム） --- */
+  
+  /* 0. カード全体のコンテナ（サイズ定義） */
+  .card {
+    position: relative; /* 子要素の基準点になる */
+    width: 240px;  /* スマホで見やすいサイズ感 */
+    height: 360px; /* 2:3の比率 */
+    /* 開発用：カードの領域がわかるように仮の背景色 */
+    background-color: #2a2a2a; 
+    border-radius: 15px; /* フレームに合わせて角を少し丸める */
+    overflow: hidden; /* はみ出した部分を隠す */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5); /* カッコいい影 */
+  }
+
+  /* 1. 最下層：イラスト (z-index: 1) */
+  .card-art {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    object-fit: cover; /* 枠の窓全体を埋め尽くすように拡大縮小 */
+    z-index: 1;
+  }
+
+  /* 2. 中間層：フレーム画像 (z-index: 10) */
+  .card-frame-img {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    object-fit: fill; /* コンテナサイズに合わせて強制的に引き伸ばす */
+    z-index: 10;
+    pointer-events: none; /* クリックを貫通させる */
+  }
+
+  /* 3. 最上層：テキストUI (z-index: 20) */
+  /* ※位置(top, leftなど)は使用するフレーム画像に合わせて微調整が必要です */
+  .card-ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; }
+
+  /* 左上のコスト表示 */
+  .card-cost {
+    position: absolute;
+    top: 15px; left: 18px; width: 55px; height: 55px;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 32px; font-weight: bold; color: #FFD700; /* 金色 */
+    text-shadow: 2px 2px 4px #000; /* 文字を見やすくする影 */
+  }
+  
+  /* 中央のリボンタイトル */
+  .card-title {
+    position: absolute;
+    top: 215px; left: 30px; width: 180px;
+    text-align: center; font-size: 18px; font-weight: bold; color: #3d2e1e; /* 羊皮紙っぽい濃い茶色 */
+  }
+
+  /* 下部の説明文ボックス */
+  .card-desc {
+    position: absolute;
+    bottom: 30px; left: 30px; width: 180px; height: 70px;
+    display: flex; justify-content: center; align-items: center; text-align: center;
+    font-size: 14px; color: #3d2e1e; line-height: 1.4;
+  }
+
+</style>
 </head>
 <body>
-    <h1>スコア送信テスト</h1>
-    
-    <input type="text" id="nameInput" placeholder="名前を入れてね">
-    <input type="number" id="scoreInput" placeholder="スコア (例: 100)">
-    
-    <button onclick="sendData()">送信する</button>
-    <p id="status">待機中...</p>
 
-    <script>
-        // ↓↓↓ ここにさっきのURLを貼る！ ↓↓↓
-        const GAS_URL = "https://script.google.com/macros/s/AKfycby05yz_QzR_FCBQQFA1rTy3HrIT5tze4z5pGGgpE1_Hv_UQs9Y2AB9Spc8smepTjkkWiw/exec"; 
+  <div class="card">
+    <img src="assets/images/art_strike.png" class="card-art">
+    <img src="assets/images/card_frame.png" class="card-frame-img">
+    <div class="card-ui">
+      <div class="card-cost">1</div>
+      <div class="card-title">ストライク</div>
+      <div class="card-desc">敵1体に<br>6ダメージを与える。</div>
+    </div>
+  </div>
 
-        function sendData() {
-            const name = document.getElementById('nameInput').value;
-            const score = document.getElementById('scoreInput').value;
-            const status = document.getElementById('status');
+  <div class="card">
+    <img src="assets/images/art_shield.png" class="card-art">
+    <img src="assets/images/card_frame.png" class="card-frame-img">
+    <div class="card-ui">
+      <div class="card-cost">1</div>
+      <div class="card-title">防御</div>
+      <div class="card-desc">ブロックを<br>5得る。</div>
+    </div>
+  </div>
 
-            if(!name || !score) {
-                alert("名前とスコアを入れて！");
-                return;
-            }
+  <div class="card">
+    <img src="assets/images/art_potion.png" class="card-art">
+    <img src="assets/images/card_frame.png" class="card-frame-img">
+    <div class="card-ui">
+      <div class="card-cost">0</div>
+      <div class="card-title">ポーション</div>
+      <div class="card-desc">HPを<br>10回復する。</div>
+    </div>
+  </div>
 
-            status.innerText = "送信中...";
-
-            // データを送る処理
-            fetch(GAS_URL, {
-                method: "POST",
-                mode: "no-cors", // これが重要。CORSエラーを無視して送りつける設定
-                headers: {
-                    "Content-Type": "text/plain" // GASはこれを好む
-                },
-                body: JSON.stringify({ name: name, score: score })
-            })
-            .then(() => {
-                // no-corsモードだと成功の返事は読めないが、エラーが出なければ成功とみなす
-                status.innerText = "送信完了！スプシを見てみて";
-                document.getElementById('nameInput').value = "";
-                document.getElementById('scoreInput').value = "";
-            })
-            .catch(error => {
-                status.innerText = "エラー発生: " + error;
-            });
-        }
-    </script>
 </body>
 </html>
